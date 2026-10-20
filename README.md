@@ -1,18 +1,24 @@
 # kbdanim
 
-Linux klavye arka ışığı animasyon motoru için kurulum talimatları.
+Linux'ta tek bölgeli klavye arka ışığını yöneten, Rust ile yazılmış
+animasyon motoru. Terminal için `kbdanim`, isteğe bağlı masaüstü arayüzü
+için `kbdanim-gui` içerir.
 
 ## Gereksinimler
 
 - Linux
-- Rust 1.74 veya üzeri → https://rustup.rs
 - Klavye arka ışığı: `/sys/class/leds/rgb:kbd_backlight`
+- Rust 1.74 veya üzeri (GUI için 1.76+)
+- GUI için X11/Wayland geliştirme kütüphaneleri
 
-Cihazı kontrol et:
+Cihazını kontrol et:
 
 ```bash
 ls /sys/class/leds/ | grep kbd_backlight
 ```
+
+Farklı bir cihaz adı kullanıyorsan `--device /sys/class/leds/ADINIZ`
+veya `~/.config/kbdanim/config.toml` içindeki `device` ayarını kullan.
 
 ## Tek komutla kurulum
 
@@ -20,9 +26,16 @@ ls /sys/class/leds/ | grep kbd_backlight
 curl -fsSL https://raw.githubusercontent.com/berfinbtw/kbdanim/main/install.sh | bash
 ```
 
-Script dağıtımı algılar, gerekli paketleri ve Rust'ı kurar, projeyi
-`~/kbdanim` altına klonlar, CLI/daemon'u derler ve kurar. Masaüstü
-ortamı varsa GUI'yi de kurar.
+Kurulum scripti:
+
+- Dağıtımı algılar (Arch, Debian/Ubuntu, Fedora, openSUSE)
+- Gerekli paketleri ve Rust'ı kurar
+- Projeyi `~/kbdanim` altına klonlar
+- CLI/daemon'u derler ve kurar
+- Masaüstü ortamı algılarsa GUI'yi de kurar
+- udev kuralını kurar
+
+> Scripti `sudo` ile çalıştırma; sudo gerektiğinde kendisi kullanır.
 
 Sadece CLI/daemon için:
 
@@ -30,22 +43,25 @@ Sadece CLI/daemon için:
 curl -fsSL https://raw.githubusercontent.com/berfinbtw/kbdanim/main/install.sh | bash -s -- --no-gui
 ```
 
+### Kurulum seçenekleri
+
+```bash
+./install.sh --no-gui      # GUI'siz kur
+./install.sh --gui         # GUI'yi zorla kur
+./install.sh --no-udev     # udev kuralını kurma
+./install.sh --service     # systemd kullanıcı servisini etkinleştir
+./install.sh --yes         # soru sorma
+./install.sh --prefix YOL  # farklı kurulum öneki (varsayılan: /usr/local)
+./install.sh --help
+```
+
 ## Kurulum scripti ile
 
 ```bash
 git clone https://github.com/berfinbtw/kbdanim.git
 cd kbdanim
+chmod +x install.sh
 ./install.sh
-```
-
-Seçenekler:
-
-```bash
-./install.sh --no-gui      # GUI'siz kur
-./install.sh --no-udev     # udev kuralını kurma
-./install.sh --service     # systemd kullanıcı servisini etkinleştir
-./install.sh --yes         # soru sorma
-./install.sh --help
 ```
 
 ## Elle kurulum
@@ -67,10 +83,11 @@ sudo make install
 GUI'yi de kurmak için:
 
 ```bash
+make build-gui
 sudo make install-gui
 ```
 
-GUI için ek X11/Wayland kütüphaneleri gerekir:
+GUI bağımlılıkları:
 
 **Arch / CachyOS**
 
@@ -101,7 +118,16 @@ kbdanim status
 kbdanim-gui
 ```
 
-## sudo olmadan kullanım (isteğe bağlı)
+## sudo olmadan kullanım
+
+Kurulum scripti udev kuralını varsayılan olarak kurar. Kuralın etkin
+olması için oturumu kapatıp yeniden aç:
+
+```bash
+kbdanim doctor
+```
+
+Kuralı elle kurmak istersen:
 
 ```bash
 sudo groupadd -f kbdanim
@@ -111,13 +137,18 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger --subsystem-match=leds
 ```
 
-Oturumu kapatıp yeniden açtıktan sonra kontrol et:
+Cihaza zaten `leds` grubu üzerinden erişimin varsa ve mevcut erişimi
+bozmak istemiyorsan kurulumu `--no-udev` ile çalıştır.
+
+## Arka planda çalıştırma
+
+Kurulum scripti ile:
 
 ```bash
-kbdanim doctor
+./install.sh --service
 ```
 
-## Arka planda çalıştırma (isteğe bağlı)
+Elle:
 
 ```bash
 mkdir -p ~/.config/systemd/user
@@ -125,3 +156,40 @@ cp systemd/kbdanim.service ~/.config/systemd/user/
 systemctl --user daemon-reload
 systemctl --user enable --now kbdanim
 ```
+
+Kontrol:
+
+```bash
+systemctl --user status kbdanim
+kbdanim status
+```
+
+## Kullanım
+
+```bash
+kbdanim list
+kbdanim run --mode rainbow
+kbdanim run --mode fire --speed 1.5
+kbdanim static --color "#00aaff"
+kbdanim off
+
+kbdanim preset run gaming
+kbdanim playlist run evening
+kbdanim-gui
+```
+
+## Sorun giderme
+
+- **`Permission denied`**: udev kuralını kurup oturumu yeniden aç.
+- **`cargo: command not found`**: `sudo env "PATH=$PATH" make install`
+  kullan veya Rust'ı sistem geneline kur.
+- **Uygulama menüsünde görünmüyor**:
+  `sudo update-desktop-database /usr/local/share/applications`
+- **GUI açılmıyor**: X11/Wayland geliştirme kütüphanelerinin kurulu
+  olduğundan emin ol.
+- **Cihaz bulunamıyor**: `ls /sys/class/leds/` çıktısını kontrol et ve
+  `--device` ile doğru yolu ver.
+
+## Lisans
+
+MIT
