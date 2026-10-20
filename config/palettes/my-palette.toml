@@ -1,0 +1,5 @@
+# Example custom palette. Files here are loaded by name with
+# `--palette <name>` (matching the filename without .toml), and take
+# priority over any built-in palette of the same name.
+name = "my-palette"
+colors = ["#ff0000", "#ff8800", "#ffff00", "#ffffff"]

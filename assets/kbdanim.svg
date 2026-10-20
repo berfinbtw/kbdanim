@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="128" height="128" rx="26" fill="#18181b"/>
+
+  <!-- soft backlight glow under the key -->
+  <ellipse cx="64" cy="92" rx="34" ry="10" fill="url(#glow)" opacity="0.55"/>
+
+  <!-- the key -->
+  <rect x="32" y="30" width="64" height="52" rx="10" fill="#3f3f46"/>
+  <rect x="32" y="30" width="64" height="52" rx="10" fill="none" stroke="#52525b" stroke-width="2"/>
+  <rect x="40" y="38" width="48" height="36" rx="6" fill="url(#glow)"/>
+</svg>

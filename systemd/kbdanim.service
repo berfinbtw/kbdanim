@@ -1,0 +1,32 @@
+# kbdanim user service.
+#
+# Install:
+#   mkdir -p ~/.config/systemd/user
+#   cp systemd/kbdanim.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now kbdanim
+#
+# This runs kbdanim in the FOREGROUND (Type=simple) on purpose: kbdanim
+# itself does not fork/daemonize (see the comment at the top of
+# src/daemon.rs) and instead relies on systemd for backgrounding,
+# restart-on-failure, and log capture (via the journal).
+#
+# For the daemon to write to the LED device without running as root,
+# install udev/60-kbdanim.rules first (see that file's own comments)
+# so your user has write access to the device's sysfs files.
+
+[Unit]
+Description=kbdanim keyboard backlight animation daemon
+Documentation=man:kbdanim(1)
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/kbdanim daemon
+Restart=on-failure
+RestartSec=2
+# Turn the LED off cleanly if the service is stopped/restarted.
+ExecStopPost=-/usr/local/bin/kbdanim off
+
+[Install]
+WantedBy=default.target

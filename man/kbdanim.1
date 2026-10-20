@@ -1,0 +1,202 @@
+.TH KBDANIM 1 "2026" "kbdanim 1.0.0" "kbdanim manual"
+.SH NAME
+kbdanim \- single-zone keyboard backlight animation engine
+.SH SYNOPSIS
+.B kbdanim
+.I COMMAND
+.RI [ OPTIONS ]
+.SH DESCRIPTION
+.B kbdanim
+is a CLI-only, dependency-free Rust daemon and control tool for
+single-zone RGB keyboard backlights exposed through the Linux
+.I leds
+sysfs class (typically
+.IR /sys/class/leds/rgb:kbd_backlight ).
+It drives 30+ real-time color and brightness animations, supports
+presets and power-aware profiles, and can run either as a one-shot
+foreground process or as a systemd user service.
+.SH COMMANDS
+.TP
+.B run
+Run an animation in the foreground until Ctrl+C. Accepts all animation
+options (see OPTIONS).
+.TP
+.B daemon
+Run the animation engine as a foreground daemon, controllable via
+.BR stop ", " status ", " mode ", " color ", " brightness ", etc.
+Intended to be supervised by systemd (see systemd/kbdanim.service).
+.TP
+.B stop
+Ask a running daemon to stop.
+.TP
+.B status
+Show the running daemon's current mode, brightness, speed, etc.
+.TP
+.B restart
+Stop the daemon (start it again yourself, or via systemd).
+.TP
+.B list
+List every available animation with a one-line description.
+.TP
+.BI search " term"
+Search animation names/descriptions for a substring.
+.TP
+.BI color " spec"
+Set the LED color: a name, a
+.B #rrggbb
+hex code, an
+.B r,g,b
+triplet, or the literal
+.BR random .
+Applies to a running daemon if one exists; otherwise writes directly to
+the device once.
+.TP
+.BI brightness " 0-255"
+Set the global brightness.
+.TP
+.BI mode " name"
+Change a running daemon's animation mode.
+.TP
+.B static
+Set a fixed color (see
+.B \-\-color
+/
+.BR \-\-brightness ).
+.TP
+.B off
+Turn the keyboard LED off.
+.TP
+.BR gaming ", " night
+Shortcuts for the built-in
+.RI \[dq] gaming \[dq]
+/
+.RI \[dq] night \[dq]
+presets.
+.TP
+.B preset list|run|create
+Manage single-animation presets.
+.TP
+.B profile list|switch
+Manage device-wide profiles (used for AC/battery auto-switching).
+.TP
+.B power\-profile ac|battery
+Shortcut for
+.BR "profile switch ac" / battery .
+.TP
+.B random\-mode on|off
+Have a running daemon periodically switch to a random animation.
+.TP
+.B playlist run \fIname\fR
+Cycle through a sequence of animations defined in a playlist file.
+.TP
+.B interactive
+A simple line-based live controller (starts a daemon automatically if
+none is running).
+.TP
+.B doctor
+Diagnose common device/permission/config problems.
+.TP
+.B config show|path|edit
+Inspect or edit the configuration file.
+.TP
+.B completions bash|zsh|fish
+Print a shell completion script.
+.SH OPTIONS
+These apply to
+.BR run ", " static ", " gaming ", " night ", preset/playlist application,
+and daemon startup where relevant.
+.TP
+.BI \-\-mode " name"
+Animation to run (default: rainbow). See
+.BR "kbdanim list" .
+.TP
+.BI \-\-device " path"
+LED sysfs directory (default: /sys/class/leds/rgb:kbd_backlight).
+.TP
+.BI \-\-speed " 0.1-10.0"
+Animation speed multiplier (default: 1.0). Independent of
+.BR \-\-fps ;
+speed controls how fast simulated time advances, fps controls how
+often it's recomputed.
+.TP
+.BI \-\-fps " 1-240"
+Frames per second (default: 30).
+.TP
+.BI \-\-brightness " 0-255"
+Global brightness (default: 200).
+.TP
+.BI \-\-color " spec"
+Primary color: a name, #rrggbb hex, or r,g,b triplet.
+.TP
+.BI \-\-color2 " spec"
+Secondary color, used by animations that blend or cycle between two
+colors.
+.TP
+.BI \-\-easing " name"
+One of: linear, smoothstep, ease\-in, ease\-out, ease\-in\-out, sine,
+quadratic, cubic.
+.TP
+.BI \-\-period " seconds"
+Base cycle/pulse duration; meaning varies per animation.
+.TP
+.BI \-\-randomness " 0-1"
+How chaotic stochastic animations (fire, lightning, meteor, ...) feel.
+.TP
+.BI \-\-saturation " 0-1"
+Color saturation knob.
+.TP
+.BI \-\-temperature " 0-1"
+Warm/cool knob used by a few animations.
+.TP
+.BI \-\-intensity " n"
+General intensity / flicker\-speed multiplier.
+.TP
+.BI \-\-palette " name"
+A built\-in (warm, cool, fire, ocean, forest, sunset, cyberpunk,
+pastel, monochrome, neon) or user\-defined palette.
+.TP
+.BI \-\-seed " n"
+Fix the RNG seed for reproducible stochastic animations.
+.TP
+.BR \-v ", " \-\-verbose
+Increase log verbosity; repeatable.
+.TP
+.BR \-q ", " \-\-quiet
+Only log errors.
+.SH FILES
+.TP
+.I ~/.config/kbdanim/config.toml
+Main configuration file.
+.TP
+.I ~/.config/kbdanim/presets/*.toml
+User-defined presets.
+.TP
+.I ~/.config/kbdanim/palettes/*.toml
+User-defined color palettes.
+.TP
+.I ~/.config/kbdanim/playlists/*.toml
+Playlist definitions for
+.BR "playlist run" .
+.TP
+.I ~/.local/state/kbdanim/state.toml
+Persisted daemon state, restored on the next daemon start.
+.TP
+.I $XDG_RUNTIME_DIR/kbdanim/kbdanim.sock
+Unix domain socket used for CLI-to-daemon control.
+.SH EXIT STATUS
+0 on success, 1 on any error (device, permission, config, or argument
+errors are all reported on stderr with a description).
+.SH EXAMPLES
+.EX
+kbdanim list
+sudo kbdanim run --mode fire --speed 1.5
+kbdanim daemon &
+kbdanim status
+kbdanim mode rainbow
+kbdanim preset run gaming
+.EE
+.SH SEE ALSO
+.BR systemctl (1),
+.BR udevadm (8)
+.SH AUTHOR
+kbdanim contributors.

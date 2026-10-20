@@ -1,0 +1,74 @@
+# kbdanim default configuration.
+#
+# Location: $XDG_CONFIG_HOME/kbdanim/config.toml (usually ~/.config/kbdanim/config.toml)
+# Run `kbdanim config path` to see where kbdanim expects this file, and
+# `kbdanim config edit` to open it in $EDITOR (creating it from this
+# template first if it doesn't exist yet).
+#
+# Every key below is optional; anything you omit falls back to kbdanim's
+# built-in default. See docs/configuration.md for the full reference.
+
+device = "/sys/class/leds/rgb:kbd_backlight"
+
+[animation]
+mode = "rainbow"
+speed = 1.0
+fps = 30
+brightness = 200
+easing = "smoothstep"
+color = "#00AAFF"
+color2 = "#FF0080"
+
+[daemon]
+enabled = false
+restore_state = true
+
+[power]
+# Automatically switch between the [profiles.ac] and [profiles.battery]
+# profiles below when the daemon detects the power source has changed.
+auto_profile = true
+
+[transition]
+enabled = true
+duration = 1.5
+
+[engine]
+# Round each color channel to the nearest multiple of this value before
+# writing to sysfs, to skip redundant near-identical writes. 1 disables
+# quantization (every change is written).
+color_quantization = 1
+
+[random]
+# How often (in seconds) `kbdanim random-mode` switches to a new
+# animation while enabled.
+interval = 30.0
+
+[profiles.default]
+mode = "rainbow"
+brightness = 200
+speed = 1.0
+fps = 30
+
+[profiles.ac]
+mode = "rainbow"
+brightness = 255
+speed = 1.0
+fps = 30
+
+[profiles.battery]
+mode = "breathing"
+brightness = 80
+speed = 0.8
+fps = 15
+
+[profiles.gaming]
+mode = "cyberpunk"
+brightness = 255
+speed = 1.2
+fps = 60
+
+[profiles.night]
+mode = "night"
+brightness = 25
+speed = 0.4
+fps = 20

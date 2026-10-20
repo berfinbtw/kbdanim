@@ -1,0 +1,21 @@
+# udev rule for kbdanim.
+#
+# Grants members of the "kbdanim" group read/write access to ONLY the
+# rgb:kbd_backlight LED sysfs attributes kbdanim needs
+# (brightness, multi_intensity) — not a blanket rule over all of
+# /sys/class/leds, and not world-writable.
+#
+# Install:
+#   sudo groupadd -f kbdanim
+#   sudo usermod -aG kbdanim "$USER"
+#   sudo cp udev/60-kbdanim.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger --subsystem-match=leds
+#   # then log out and back in (or reboot) for the group change to apply
+#
+# After this, `kbdanim daemon` / `kbdanim run` etc. work without sudo.
+# Verify with `kbdanim doctor`.
+
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="rgb:kbd_backlight", \
+  RUN+="/bin/chgrp kbdanim /sys%p/brightness /sys%p/multi_intensity", \
+  RUN+="/bin/chmod 664 /sys%p/brightness /sys%p/multi_intensity"

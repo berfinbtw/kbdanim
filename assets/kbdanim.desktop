@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=kbdanim
+GenericName=Keyboard Lighting Controller
+Comment=Control your keyboard's backlight animations, colors, and brightness
+Exec=kbdanim-gui
+Icon=kbdanim
+Terminal=false
+Categories=Utility;HardwareSettings;
+StartupWMClass=kbdanim
+Keywords=keyboard;led;rgb;backlight;lighting;

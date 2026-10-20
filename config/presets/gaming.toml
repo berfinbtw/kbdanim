@@ -1,0 +1,8 @@
+# Example preset. Copy files like this into
+# $XDG_CONFIG_HOME/kbdanim/presets/ to add your own, or edit this one
+# after installing to override the built-in "gaming" preset.
+name = "gaming"
+mode = "cyberpunk"
+brightness = 255
+speed = 1.2
+fps = 60

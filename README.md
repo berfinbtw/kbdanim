@@ -14,25 +14,45 @@ Cihazı kontrol et:
 ls /sys/class/leds/ | grep kbd_backlight
 ```
 
-## CLI ve daemon kurulumu
+## Tek komutla kurulum
 
-Projeyi indir:
+```bash
+curl -fsSL https://raw.githubusercontent.com/berfinbtw/kbdanim/main/install.sh | bash
+```
+
+Script dağıtımı algılar, gerekli paketleri ve Rust'ı kurar, projeyi
+`~/kbdanim` altına klonlar, CLI/daemon'u derler ve kurar. Masaüstü
+ortamı varsa GUI'yi de kurar.
+
+Sadece CLI/daemon için:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/berfinbtw/kbdanim/main/install.sh | bash -s -- --no-gui
+```
+
+## Kurulum scripti ile
 
 ```bash
 git clone https://github.com/berfinbtw/kbdanim.git
 cd kbdanim
+./install.sh
 ```
 
-Zip ile indirdiysen:
+Seçenekler:
 
 ```bash
-unzip kbdanim.zip
+./install.sh --no-gui      # GUI'siz kur
+./install.sh --no-udev     # udev kuralını kurma
+./install.sh --service     # systemd kullanıcı servisini etkinleştir
+./install.sh --yes         # soru sorma
+./install.sh --help
+```
+
+## Elle kurulum
+
+```bash
+git clone https://github.com/berfinbtw/kbdanim.git
 cd kbdanim
-```
-
-Kur:
-
-```bash
 sudo make install
 ```
 
@@ -44,15 +64,13 @@ sudo make install
 > sudo env "PATH=$PATH" make install
 > ```
 
-Kurulumu doğrula:
+GUI'yi de kurmak için:
 
 ```bash
-kbdanim doctor
+sudo make install-gui
 ```
 
-## GUI kurulumu (isteğe bağlı)
-
-Önce CLI'yi kurmuş olman gerekir.
+GUI için ek X11/Wayland kütüphaneleri gerekir:
 
 **Arch / CachyOS**
 
@@ -74,14 +92,14 @@ sudo dnf install libX11-devel libXcursor-devel libXi-devel libXrandr-devel \
   libxkbcommon-devel wayland-devel mesa-libGL-devel
 ```
 
-GUI'yi kur:
+## Kurulumu doğrula
 
 ```bash
-sudo make install-gui
+kbdanim doctor
+kbdanim list
+kbdanim status
+kbdanim-gui
 ```
-
-Kurulumdan sonra uygulama menüsünde **kbdanim** olarak görünür veya
-terminalden `kbdanim-gui` ile açılır.
 
 ## sudo olmadan kullanım (isteğe bağlı)
 
@@ -97,4 +115,13 @@ Oturumu kapatıp yeniden açtıktan sonra kontrol et:
 
 ```bash
 kbdanim doctor
+```
+
+## Arka planda çalıştırma (isteğe bağlı)
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp systemd/kbdanim.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now kbdanim
 ```

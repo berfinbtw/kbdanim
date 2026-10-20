@@ -1,0 +1,23 @@
+# Optional companion unit: starts kbdanim.service as soon as the
+# keyboard LED sysfs device appears, useful on systems where the LED
+# driver loads slightly after login (or after resume/hotplug).
+#
+# Install alongside kbdanim.service:
+#   cp systemd/kbdanim.path ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now kbdanim.path
+#
+# With this enabled you generally do NOT also need to
+# `enable --now kbdanim.service` directly; the .path unit will start it.
+# If your device path differs from the default, edit PathExists= below
+# and the `device = "..."` line in your config.toml to match.
+
+[Unit]
+Description=Watch for the kbdanim keyboard LED device
+
+[Path]
+PathExists=/sys/class/leds/rgb:kbd_backlight
+Unit=kbdanim.service
+
+[Install]
+WantedBy=default.target

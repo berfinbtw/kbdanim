@@ -1,0 +1,59 @@
+[package]
+name = "kbdanim"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.74"
+authors = ["kbdanim contributors"]
+description = "Professional CLI-based single-zone keyboard backlight animation engine for Linux, with an optional GUI"
+license = "MIT"
+readme = "README.md"
+keywords = ["keyboard", "led", "backlight", "cli", "linux"]
+categories = ["command-line-utilities", "hardware-support"]
+
+# The backend (color engine, animations, config, daemon, IPC, ...) is
+# exposed as a library so both the CLI binary and the optional GUI
+# binary share the exact same code -- no second backend, ever.
+[lib]
+name = "kbdanim"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kbdanim"
+path = "src/main.rs"
+
+# The GUI binary is entirely opt-in via the `gui` feature (see
+# [features] below) so a plain `cargo build`/`cargo build --release`
+# builds ONLY the dependency-free CLI/daemon -- no windowing toolkit,
+# no GPU backend, nothing extra pulled in unless you ask for it with
+# `cargo build --release --features gui`. See docs/gui.md.
+[[bin]]
+name = "kbdanim-gui"
+path = "src/gui/main.rs"
+required-features = ["gui"]
+
+# kbdanim's CLI/daemon intentionally has zero runtime dependencies.
+# Everything it needs (CLI parsing, a TOML-subset config format, a
+# PRNG, Unix socket IPC, signal handling) is implemented directly on
+# top of the standard library and a handful of well-known, stable
+# libc functions declared by hand in `src/ffi.rs`. This keeps the core
+# binary small, fast to build, and free of supply-chain surface for a
+# program that runs constantly in the background with elevated device
+# access. The GUI is the one deliberate exception (see docs/gui.md for
+# why `eframe` was chosen), and it is fully optional.
+[dependencies]
+eframe = { version = "0.28", optional = true }
+
+[dev-dependencies]
+
+[features]
+default = []
+gui = ["dep:eframe"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0

@@ -1,0 +1,7 @@
+name = "chill"
+mode = "breathing"
+brightness = 120
+speed = 0.6
+fps = 24
+color = "#00AAFF"
+easing = "sine"

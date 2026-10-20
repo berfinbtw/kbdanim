@@ -1,0 +1,19 @@
+# Example playlist. Run with: kbdanim playlist run evening
+#
+# Each [[animations]] entry plays for `duration` seconds before moving
+# to the next one; the whole list repeats until stopped with Ctrl+C.
+[[animations]]
+mode = "sunset"
+duration = 45
+
+[[animations]]
+mode = "aurora"
+duration = 45
+
+[[animations]]
+mode = "ocean"
+duration = 30
+
+[[animations]]
+mode = "night"
+duration = 60

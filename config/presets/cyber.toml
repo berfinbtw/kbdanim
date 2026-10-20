@@ -1,0 +1,5 @@
+name = "cyber"
+mode = "cyberpunk"
+brightness = 200
+speed = 1.0
+fps = 30
