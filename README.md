@@ -190,6 +190,5 @@ kbdanim-gui
 - **Cihaz bulunamıyor**: `ls /sys/class/leds/` çıktısını kontrol et ve
   `--device` ile doğru yolu ver.
 
-## Lisans
-
-MIT
+## NOT
+bu proje cogunlukla claude ile yapilmistir proje tamamen amator bir sekildedir.
